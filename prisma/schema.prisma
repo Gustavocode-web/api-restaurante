@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TransactionType {
+  entrada
+  saida
+}
+
+enum PaymentMethod {
+  dinheiro
+  pix
+  cartao_credito
+  cartao_debito
+}
+
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String
+  type      TransactionType
+
+  transactions Transaction[]
+}
+
+
+
+model Transaction {
+  id            Int             @id @default(autoincrement())
+  type          TransactionType
+  value         Decimal
+  paymentMethod PaymentMethod
+  note          String?
+  createdAt     DateTime        @default(now())
+
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+}
+
