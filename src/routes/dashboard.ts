@@ -46,7 +46,7 @@ dashboardRoutes.get("/", async (req, res) => {
     });
 
     const total_e_soma_por_metodo_pagamento = await prisma.transaction.groupBy({
-        by: ['paymentMethod'],
+        by: ['paymentMethod'], 
         where,
         _sum: {
             value: true,
@@ -56,11 +56,49 @@ dashboardRoutes.get("/", async (req, res) => {
         },
     });
 
+    const entradas = await prisma.transaction.aggregate({
+        where,
+        _sum: {
+            value: true
+        },
+        _count: { _all: true },
+    });
 
+    const entradasTotalValue = entradas._sum.value ?? 0;
+    const entradasTotalCount = entradas._count._all;
 
+    const saidas = await prisma.transaction.aggregate({
+        where:{
+            categoryId: 2
+        },
+        _sum: {
+            value: true
+        },
+        _count: { _all: true },
+    });
 
+    const saidasTotalValue = saidas._sum.value ?? 0;
+    const saidasTotalCount = saidas._count._all;
 
-    return res.json({ "O valor total de todas as transações do tipo vendas: ": total_e_soma_por_metodo_pagamento, "Quantidade de transações do tipo vendas: ": countTransactions });
+    const saldo = Number(entradasTotalValue) - Number(saidasTotalValue);
 
+    return res.json({
+    periodo: {
+      startDate: typeof startDate === "string" ? startDate : null,
+      endDate: typeof endDate === "string" ? endDate : null,
+    },
+    entradas: {
+      totalValue: entradasTotalValue,
+      totalCount: entradasTotalCount,
+    },
+    saidas: {
+      totalValue: saidasTotalValue,
+      totalCount: saidasTotalCount,
+    },
+    saldo: saldo,
+ 
+
+    //return res.json({ "O valor total de todas as transações do tipo vendas: ": total_e_soma_por_metodo_pagamento, "Quantidade de transações do tipo vendas: ": countTransactions });
+    });
 
 });
