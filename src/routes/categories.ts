@@ -1,29 +1,40 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma";
-import { json } from "stream/consumers";
+import { AppError } from "../errors/AppError";
+import { asyncHandler } from "../middlewares/asyncHandler";
 
 export const categoriesRoutes = Router();
 
-// Rota para obter todas as categorias
-categoriesRoutes.get("/", async (req, res) => {
-  const categories = await prisma.category.findMany({
-    orderBy: {id: "asc"}
-  });
-  return res.json(categories);
-});
+categoriesRoutes.get(
+  "/",
+  asyncHandler(async (req, res) => {
+    const categories = await prisma.category.findMany({
+      orderBy: { id: "asc" },
+    });
 
-categoriesRoutes.post("/", async (req, res) => {
-    const {type, name} = req.body;
+    return res.json({
+      success: true,
+      data: categories,
+    });
+  })
+);
 
-    if(!type || !name){
-        return res.status(400).json({error: "type e name são obrigatórios" });
+categoriesRoutes.post(
+  "/",
+  asyncHandler(async (req, res) => {
+    const { type, name } = req.body;
+
+    if (!type || !name) {
+      throw new AppError("type e name são obrigatórios", 400);
     }
-  const categoriesregistro = await prisma.category.create({
-    data: {
-      type,
-      name
-    }
-  });
-  return res.status(201).json(categoriesregistro);
-});
 
+    const category = await prisma.category.create({
+      data: { type, name },
+    });
+
+    return res.status(201).json({
+      success: true,
+      data: category,
+    });
+  })
+);

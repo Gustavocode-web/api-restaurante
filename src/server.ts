@@ -4,6 +4,10 @@ import {prisma} from "./lib/prisma";
 import { categoriesRoutes } from "./routes/categories";
 import { transactionsRoutes } from "./routes/transactions";
 import { dashboardRoutes } from "./routes/dashboard";
+import { reportsRoutes } from "./routes/reports";
+import { errorHandler } from "./middlewares/errorHandler";
+
+
 
 
 const app = express();
@@ -16,12 +20,16 @@ app.use(cors());
 app.use("/categories", categoriesRoutes);
 app.use("/transactions", transactionsRoutes);
 app.use("/dashboard", dashboardRoutes);
+app.use("/reports", reportsRoutes)
 
 //essa função realiza a consulta da quantas categorias existem no banco de dados, agora vou explicar por partes: trata-se de uma função get ou seja serve para pegar/consultar uma informação - é usado async pois trata-se de uma consulta banco de dados então se faz necessario um tempo para buscar essa informação e recebe-la na variavel por isso o await ou seja ele acessa o banco de dados na tabela categorias e faz a contagem de quantas existem - logo depois responde com um json e quantidade de categorias encontradas.
 app.get("/db-check", async (req, res) => {
   const caregoriesCount = await prisma.category.count();
   return res.json({ ok: true, caregoriesCount });
 })
+
+app.use(errorHandler);
+
 
 const PORT = 3000;
 
