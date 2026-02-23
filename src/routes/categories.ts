@@ -2,6 +2,8 @@ import { Router } from "express";
 import { prisma } from "../lib/prisma";
 import { AppError } from "../errors/AppError";
 import { asyncHandler } from "../middlewares/asyncHandler";
+import { validate } from "../middlewares/validate";
+import {createCategorySchema} from "../schemas/categories";
 
 export const categoriesRoutes = Router();
 
@@ -21,6 +23,7 @@ categoriesRoutes.get(
 
 categoriesRoutes.post(
   "/",
+  validate(createCategorySchema),
   asyncHandler(async (req, res) => {
     const { type, name } = req.body;
 

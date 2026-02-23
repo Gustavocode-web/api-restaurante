@@ -2,11 +2,15 @@ import { Router } from "express";
 import { prisma } from "../lib/prisma";
 import { AppError } from "../errors/AppError";
 import { asyncHandler } from "../middlewares/asyncHandler";
+import { validate } from "../middlewares/validate";
+import {createTransactionSchema} from "../schemas/transactions";
+
 
 export const transactionsRoutes = Router();
 
 transactionsRoutes.post(
   "/",
+  validate(createTransactionSchema),
   asyncHandler(async (req, res) => {
     const { value, paymentMethod, categoryId, note } = req.body;
 
