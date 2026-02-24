@@ -3,9 +3,16 @@ import { prisma } from "../lib/prisma";
 import { AppError } from "../errors/AppError";
 import { asyncHandler } from "../middlewares/asyncHandler";
 import { validate } from "../middlewares/validate";
-import {createCategorySchema} from "../schemas/categories";
+import { createCategorySchema } from "../schemas/categories.schemas";
+import { createCategoryController } from "../controllers/categories.controllers";
 
 export const categoriesRoutes = Router();
+
+categoriesRoutes.post(
+  "/",
+  validate(createCategorySchema),
+  asyncHandler(createCategoryController)
+);
 
 categoriesRoutes.get(
   "/",
@@ -21,23 +28,3 @@ categoriesRoutes.get(
   })
 );
 
-categoriesRoutes.post(
-  "/",
-  validate(createCategorySchema),
-  asyncHandler(async (req, res) => {
-    const { type, name } = req.body;
-
-    if (!type || !name) {
-      throw new AppError("type e name são obrigatórios", 400);
-    }
-
-    const category = await prisma.category.create({
-      data: { type, name },
-    });
-
-    return res.status(201).json({
-      success: true,
-      data: category,
-    });
-  })
-);
