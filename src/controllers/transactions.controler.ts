@@ -1,17 +1,48 @@
-import { Request, response } from "express";
-import { createTransaction } from "../service/transactions.service";
+import { Request, Response } from "express";
+import {
+  createTransaction,
+  getTransactionById,
+  getTransactions,
+} from "../service/transactions.service";
 
-export async function createTransactionController(req: Request, res = response) {   
-    const { value, paymentMethod, categoryId, note } = req.body;
+export async function createTransactionController(req: Request, res: Response) {
+  const { value, paymentMethod, categoryId, note } = req.body;
 
-    const transaction = await createTransaction({
-        value,
-        paymentMethod,
-        categoryId,
-        note
-    });
-    return res.status(201).json({
-        success: true,
-        data: transaction,
-    });
+  const transaction = await createTransaction({
+    value,
+    paymentMethod,
+    categoryId,
+    note,
+  });
+
+  return res.status(201).json({
+    success: true,
+    data: transaction,
+  });
+}
+
+export async function getTransactionByIdController(req: Request, res: Response) {
+  const id = Number(req.params.id);
+
+  const transaction = await getTransactionById(id);
+
+  return res.json({
+    success: true,
+    data: transaction,
+  });
+}
+
+export async function getTransactionsController(req: Request, res: Response) {
+  const order: "asc" | "desc" = req.query.order === "asc" ? "asc" : "desc";
+
+  const pageRaw = Number(req.query.page);
+  const page = Number.isFinite(pageRaw) && pageRaw > 0 ? pageRaw : 1;
+
+  const limitRaw = Number(req.query.limit);
+  const limit =
+    Number.isFinite(limitRaw) && limitRaw > 0 ? Math.min(limitRaw, 100) : 20;
+
+  const result = await getTransactions({ page, limit, order });
+
+  return res.json(result);
 }
