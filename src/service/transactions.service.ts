@@ -1,6 +1,7 @@
 import { PaymentMethod } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import { AppError } from "../errors/AppError";
+import { error } from "console";
 
 type CreateTransactionInput = {
   value: number;
@@ -76,4 +77,34 @@ export async function getTransactions({
     },
     data: transactions,
   };
+}
+
+
+export async function updateTransaction(id: number, data: Partial<CreateTransactionInput>) {
+  const transaction = await prisma.transaction.findUnique({
+    where: { id },
+  });
+
+  if (!transaction) {
+    throw new AppError("Transaction not found", 404);
+  }
+    if (data.categoryId !== undefined) {
+    const category = await prisma.category.findUnique({
+      where: { id: data.categoryId },
+    });
+
+    if (!category) {
+      throw new AppError("Category does not exist", 404);
+    }
+  }  
+
+  return prisma.transaction.update({
+    where: { id },
+    data,
+    include: {
+      category: {
+        select: { name: true, type: true },
+      },
+    },
+  });
 }

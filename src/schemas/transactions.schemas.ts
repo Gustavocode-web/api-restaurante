@@ -26,3 +26,17 @@ export const gettransactionsSchema = z.object({
         endDate: z.string().date().optional(),
     }),
 })
+
+export const updateTransactionSchema = z.object({
+    params: z.object({
+        id: z.coerce.number().int().positive("id must be a positive integer"),
+    }),
+    body: z.object({
+        note: z.string().min(1, "description is required").optional(),
+        value: z.number().positive("value must be grather than 0").optional(),
+        categoryId: z.number().int().positive("category must be a positive integer").optional(),
+        paymentMethod: z.enum(["dinheiro", "pix", "cartao_credito", "cartao_debito"], {
+            message: "paymentMethod must be one of: dinheiro, pix, cartao_credito, cartao_debito",
+        }).optional(),
+    })
+})

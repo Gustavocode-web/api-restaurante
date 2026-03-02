@@ -3,7 +3,9 @@ import {
   createTransaction,
   getTransactionById,
   getTransactions,
+  updateTransaction,
 } from "../service/transactions.service";
+import { success } from "zod";
 
 export async function createTransactionController(req: Request, res: Response) {
   const { value, paymentMethod, categoryId, note } = req.body;
@@ -45,4 +47,15 @@ export async function getTransactionsController(req: Request, res: Response) {
   const result = await getTransactions({ page, limit, order });
 
   return res.json(result);
+}
+
+export async function updateTransactionController(req: Request, res: Response) {
+  const id = Number(req.params.id);
+
+  const updated = await updateTransaction(id, req.body)
+
+  return res.json({
+    success: true,
+    data: updated,
+  });
 }

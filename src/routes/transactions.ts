@@ -4,11 +4,13 @@ import { validate } from "../middlewares/validate";
 import {
   createTransactionSchema,
   getTransactionByIdSchema,
+  updateTransactionSchema,
 } from "../schemas/transactions.schemas";
 import {
   createTransactionController,
   getTransactionByIdController,
   getTransactionsController,
+  updateTransactionController,
 } from "../controllers/transactions.controler";
 
 export const transactionsRoutes = Router();
@@ -26,3 +28,12 @@ transactionsRoutes.get(
   validate(getTransactionByIdSchema),
   asyncHandler(getTransactionByIdController)
 );
+
+transactionsRoutes.patch(
+  "/:id",
+  validate(updateTransactionSchema),
+  asyncHandler(updateTransactionController)
+);
+
+
+
